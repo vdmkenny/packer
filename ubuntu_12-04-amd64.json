@@ -11,18 +11,19 @@
 
     "boot_command": [
       "<esc><esc><enter><wait>",
-      "/install/vmlinuz noapic perseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ubuntu-12.04-amd64/preseed.cfg",
+      "/install/vmlinuz noapic ",
+      "preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ubuntu-12.04-amd64/preseed.cfg ",
       "debian-installer=en_US auto locale=en_US kbd-chooser/method=us ",
-      "hostname={{ .Name }}",
+      "hostname={{ .Name }} ",
       "fb=false debconf/frontend=noninteractive ",
       "keyboard-configuration/modelcode=SKIP keyboard-configuration/layout=USA keyboard-configuration/variant=USA console-setup/ask_detect=false ",
-      "intrd=/install/intrd.gz -- <enter>"
+      "initrd=/install/initrd.gz -- <enter>"
     ],
 
     "boot_wait": "12s",
 
     "http_directory": "http",
-    "guest_additions_path": "VBoxGuestAdditions_{{ .Versin }}.iso",
+    "guest_additions_path": "VBoxGuestAdditions_{{ .Version }}.iso",
 
     "ssh_username": "vagrant",
     "ssh_password": "vagrant",
