@@ -24,6 +24,7 @@
 
     "http_directory": "http",
     "guest_additions_path": "VBoxGuestAdditions_{{ .Version }}.iso",
+    "virtualbox_version_file": "/home/vagrant/.vbox_version",
 
     "ssh_username": "vagrant",
     "ssh_password": "vagrant",
@@ -31,14 +32,23 @@
 
     "disk_size": 10240,
     "vboxmanage": [
-      ["modifyvm", "{{.Name}}", "--memory", "1024"],
+      ["modifyvm", "{{.Name}}", "--memory", "512"],
       ["modifyvm", "{{.Name}}", "--cpus", "1"]
     ],
-    "shutdown_command": "echo 'packer' | sudo -S shutdown -P now"
+    "shutdown_command": "echo 'vagrant' | sudo -S shutdown -P now"
   }],
 
   "post-processors": [{
     "output": "build/ubuntu-12.04-amd64.box",
     "type": "vagrant"
+  }],
+
+  "provisioners": [{
+    "type": "shell",
+    "execute_command": "echo 'vagrant' | {{ .Vars }} sudo -E -S bash '{{ .Path }}'",
+    "scripts": [
+      "scripts/ubuntu/vagrant.sh",
+      "scripts/ubuntu/vboxguest.sh"
+    ]
   }]
 }
