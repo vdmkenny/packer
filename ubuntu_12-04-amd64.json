@@ -2,7 +2,7 @@
   "builders": [{
     "type": "virtualbox-iso",
     "virtualbox_version_file": ".vbox_version",
-    "headless": false,
+    "headless": true,
 
     "guest_os_type": "Ubuntu_64",
     "iso_url": "http://releases.ubuntu.com/12.04.5/ubuntu-12.04.5-server-amd64.iso",
@@ -47,8 +47,9 @@
     "type": "shell",
     "execute_command": "echo 'vagrant' | {{ .Vars }} sudo -E -S bash '{{ .Path }}'",
     "scripts": [
-      "scripts/ubuntu/vagrant.sh",
-      "scripts/ubuntu/vboxguest.sh"
+      "scripts/vagrant.sh",
+      "scripts/vboxguest.sh",
+      "scripts/ubuntu/puppet.sh"
     ]
   }]
 }
