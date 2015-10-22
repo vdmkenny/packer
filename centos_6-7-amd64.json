@@ -1,0 +1,43 @@
+{
+  "builders": [{
+    "type": "virtualbox-iso",
+    "headless": false,
+
+    "guest_os_type": "Redhat_64",
+    "iso_url": "http://centos.mirror.nucleus.be/6.7/isos/x86_64/CentOS-6.7-x86_64-minimal.iso",
+    "iso_checksum": "9381a24b8bee2fed0c26896141a64b69",
+    "iso_checksum_type": "md5",
+
+      "boot_command": ["<tab> text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/centos-6.7-amd64/ks.cfg<enter><wait>"],
+    "boot_wait": "12s",
+
+    "http_directory": "http",
+    "guest_additions_path": "VBoxGuestAdditions_{{ .Version }}.iso",
+    "virtualbox_version_file": "/home/vagrant/.vbox_version",
+
+    "ssh_username": "vagrant",
+    "ssh_password": "vagrant",
+    "ssh_port": 22,
+
+    "disk_size": 10240,
+    "vboxmanage": [
+      ["modifyvm", "{{.Name}}", "--memory", "512"],
+      ["modifyvm", "{{.Name}}", "--cpus", "1"]
+    ],
+    "shutdown_command": "echo 'vagrant' | sudo -S shutdown -P now"
+  }],
+
+  "post-processors": [{
+    "output": "builds/{{.Provider}}.box",
+    "type": "vagrant"
+  }],
+
+  "provisioners": [{
+    "type": "shell",
+    "execute_command": "echo 'vagrant' | {{ .Vars }} sudo -E -S bash '{{ .Path }}'",
+    "scripts": [
+      "scripts/vagrant.sh",
+      "scripts/vboxguest.sh"
+    ]
+  }]
+}
