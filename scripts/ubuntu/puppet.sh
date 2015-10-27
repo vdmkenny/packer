@@ -9,3 +9,6 @@ apt-get update
 
 # Client
 sudo apt-get install puppet -y
+
+# Ppa dependency
+sudo apt-get install python-software-properties -y

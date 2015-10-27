@@ -2,7 +2,7 @@
   "builders": [{
     "type": "virtualbox-iso",
     "virtualbox_version_file": ".vbox_version",
-    "headless": true,
+    "headless": false,
 
     "guest_os_type": "Ubuntu_64",
     "iso_url": "http://releases.ubuntu.com/12.04.5/ubuntu-12.04.5-server-amd64.iso",
@@ -29,6 +29,7 @@
     "ssh_username": "vagrant",
     "ssh_password": "vagrant",
     "ssh_port": 22,
+    "ssh_wait_timeout": "3600s",
 
     "disk_size": 10240,
     "vboxmanage": [
@@ -39,7 +40,7 @@
   }],
 
   "post-processors": [{
-    "output": "build/ubuntu-12.04-amd64.box",
+    "output": "build/ubuntu-12.04-amd64-puppet.box",
     "type": "vagrant"
   }],
 
