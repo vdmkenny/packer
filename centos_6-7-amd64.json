@@ -19,6 +19,7 @@
     "ssh_password": "vagrant",
     "ssh_port": 22,
     "ssh_wait_timeout": "3600s",
+    "ssh_pty" : "true",
 
     "disk_size": 10240,
     "vboxmanage": [
@@ -29,7 +30,7 @@
   }],
 
   "post-processors": [{
-    "output": "builds/{{.Provider}}.box",
+    "output": "build/centos-6.7-amd64-{{.Provider}}.box",
     "type": "vagrant"
   }],
 
@@ -38,7 +39,8 @@
     "execute_command": "echo 'vagrant' | {{ .Vars }} sudo -E -S bash '{{ .Path }}'",
     "scripts": [
       "scripts/vagrant.sh",
-      "scripts/vboxguest.sh"
+      "scripts/vboxguest.sh",
+      "scripts/centos/puppet.sh"
     ]
   }]
 }
