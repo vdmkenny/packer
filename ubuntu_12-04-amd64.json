@@ -40,7 +40,7 @@
   }],
 
   "post-processors": [{
-    "output": "build/ubuntu-12.04-amd64-puppet.box",
+    "output": "build/ubuntu-12.04-amd64-puppet-{{.Provider}}.box",
     "type": "vagrant"
   }],
 
