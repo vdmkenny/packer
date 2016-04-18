@@ -10,9 +10,7 @@
     "iso_checksum_type": "md5",
 
     "boot_command": [
-      "<enter><wait10><wait10>",
-      "/usr/bin/curl -s -O http://{{ .HTTPIP }}:{{ .HTTPPort }}/arch/install.sh<enter><wait5>",
-      "/usr/bin/bash install.sh --noop false<enter>"
+      "<tab> script=http://{{ .HTTPIP }}:{{ .HTTPPort }}/arch/pre-install.sh<enter>"
     ],
     "boot_wait": "12s",
 
@@ -43,9 +41,7 @@
     "type": "shell",
     "execute_command": "echo 'vagrant' | {{ .Vars }} sudo -E -S bash '{{ .Path }}'",
     "scripts": [
-      "scripts/vagrant.sh",
-      "scripts/vboxguest.sh",
-      "scripts/centos/puppet.sh"
+      "scripts/arch/install.sh"
     ]
   }]
 }

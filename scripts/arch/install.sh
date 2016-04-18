@@ -7,11 +7,11 @@ params () {
   show_cmd_output=false
   nuke=false
   devel=true
-  grub=true
-  bootctl=false
+  grub=false
+  bootctl=true
   hostname='test'
-  passwd_vagrant=$( crypt_passwd vagrant )
-  passwd_root=$( crypt_passwd root )
+  passwd_vagrant='vagrant'
+  passwd_root='root'
   if [[ -z $noop ]]; then noop=true; fi
   volgroupname="vg_${hostname}"
   lvs='root:3G var:4G swap:1G home:1G'
@@ -141,6 +141,7 @@ chroot_config () {
   if $show_status; then echo "Status: Set timezone"; fi
   cmd="ln -s /usr/share/zoneinfo/europe/brussels /etc/localtime"; cmd_success='0'; do_cmd_chroot
   locale_used=$( cat /mnt/etc/locale.gen | grep -v '#' )
+  echo $locale_used
   if $show_status; then echo "Status: Generate locale"; fi
   cmd="locale-gen"; cmd_success='0'; do_cmd_chroot
   cmd="echo 'LANG=$locale_used' > /etc/locale.conf"; cmd_success='0'; do_cmd_chroot
@@ -168,7 +169,8 @@ bootloader_bootctl () {
 
 create_vagrant_user () {
   if $show_status; then echo "Status: Adding the vagrant user"; fi
-  cmd="/usr/bin/useradd -d /home/vagrant -G wheel -m -p '$passwd_vagrant' vagrant"; cmd_success='0'; do_cmd_chroot
+  cmd="/usr/bin/useradd -d /home/vagrant -G wheel -m' vagrant"; cmd_success='0'; do_cmd_chroot
+  cmd="echo 'vagrant:$vagrant_passwd' | chpasswd"; cmd_success='0'; do_cmd_chroot
   cmd="systemctl enable sshd": cmd_success='0'; do_cmd_chroot
 }
 
