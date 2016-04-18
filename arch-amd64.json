@@ -1,0 +1,51 @@
+{
+  "builders": [{
+    "type": "virtualbox-iso",
+    "headless": false,
+
+    "guest_os_type": "ArchLinux_64",
+
+    "iso_url": "/home/bjanssens/Downloads/iso/archlinux-2016.04.01-dual.iso",
+    "iso_checksum": "56fac9b3eefdf254a53e519dfcb05168",
+    "iso_checksum_type": "md5",
+
+    "boot_command": [
+      "<enter><wait10><wait10>",
+      "/usr/bin/curl -s -O http://{{ .HTTPIP }}:{{ .HTTPPort }}/arch/install.sh<enter><wait5>",
+      "/usr/bin/bash install.sh --noop false<enter>"
+    ],
+    "boot_wait": "12s",
+
+    "http_directory": "http",
+    "guest_additions_path": "VBoxGuestAdditions_{{ .Version }}.iso",
+    "virtualbox_version_file": "/home/vagrant/.vbox_version",
+
+    "ssh_username": "vagrant",
+    "ssh_password": "vagrant",
+    "ssh_port": 22,
+    "ssh_wait_timeout": "3600s",
+    "ssh_pty" : "true",
+
+    "disk_size": 10240,
+    "vboxmanage": [
+      ["modifyvm", "{{.Name}}", "--memory", "512"],
+      ["modifyvm", "{{.Name}}", "--cpus", "1"]
+    ],
+    "shutdown_command": "echo 'vagrant' | sudo -S shutdown -P now"
+  }],
+
+  "post-processors": [{
+    "output": "build/centos-6.7-amd64-{{.Provider}}.box",
+    "type": "vagrant"
+  }],
+
+  "provisioners": [{
+    "type": "shell",
+    "execute_command": "echo 'vagrant' | {{ .Vars }} sudo -E -S bash '{{ .Path }}'",
+    "scripts": [
+      "scripts/vagrant.sh",
+      "scripts/vboxguest.sh",
+      "scripts/centos/puppet.sh"
+    ]
+  }]
+}
