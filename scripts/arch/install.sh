@@ -12,7 +12,7 @@ params () {
   hostname='test'
   passwd_vagrant='vagrant'
   passwd_root='root'
-  if [[ -z $noop ]]; then noop=true; fi
+  if [[ -z $noop ]]; then noop=false; fi
   volgroupname="vg_${hostname}"
   lvs='root:3G var:4G swap:1G home:1G'
 }
@@ -67,18 +67,18 @@ partition_lvm () {
   if $grub; then
     cmd="/usr/bin/sgdisk $disk_to_use --new=1:0:+200M"; cmd_success='0'; do_cmd
     if $show_status; then echo "Status: Set /dev/sda1 type to ef02"; fi
-    cmd="/usr/bin/sgdisk $disk_to_use --typecode=1:ef02"; cmd_success='0'; do_cmd
+    cmd="/usr/bin/sgdisk ${disk_to_use} --typecode=1:ef02"; cmd_success='0'; do_cmd
   elif $bootctl; then
     cmd="/usr/bin/sgdisk $disk_to_use --new=1:0:+512M"; cmd_success='0'; do_cmd
     if $show_status; then echo "Status: Set /dev/sda1 type to ef00"; fi
-    cmd="/usr/bin/sgdisk $disk_to_use --typecode=1:EF00"; cmd_success='0'; do_cmd
+    cmd="/usr/bin/sgdisk ${disk_to_use} --typecode=1:EF00"; cmd_success='0'; do_cmd
   fi
   if $show_status; then echo "Status: Make /dev/sda1 bootable"; fi
-  cmd="/usr/bin/sgdisk $disk_to_use --attributes=1:set:2"; cmd_success='0'; do_cmd
+  cmd="/usr/bin/sgdisk ${disk_to_use} --attributes=1:set:2"; cmd_success='0'; do_cmd
   if $show_status; then echo "Status: Creating /dev/sda2"; fi
   cmd="/usr/bin/sgdisk $disk_to_use --new=2:0:0"; cmd_success='0'; do_cmd
   if $show_status; then echo "Status: Set /dev/sda2 type to 8e00"; fi
-  cmd="/usr/bin/sgdisk $disk_to_use --typecode=1:8E00"; cmd_success='0'; do_cmd
+  cmd="/usr/bin/sgdisk $disk_to_use --typecode=2:8E00"; cmd_success='0'; do_cmd
   if $show_status; then echo "Status: Creating pv"; fi
   cmd="/usr/bin/pvcreate /dev/sda2"; cmd_success='0'; do_cmd
   if $show_status; then echo "Status: Creating vg"; fi
@@ -164,14 +164,29 @@ bootloader_grub () {
 bootloader_bootctl () {
   if $show_status; then echo "Status: Install bootctl";fi
   cmd="bootctl install"; cmd_success='0'; do_cmd_chroot
-  cmd="cat 'default arch\ntimeout 4\neditor 0\n' > /boot/loader/loader.conf"; cmd_success='0'; do_cmd_chroot
+  if $show_status; then echo "Status: Setting up bootctl";fi
+  cmd="echo 'default arch\ntimeout 4\neditor 0\n' > /boot/loader/loader.conf"; cmd_success='0'; do_cmd_chroot
+  blkid_root=$( blkid -o value /dev/mapper/${volgroupname}-${swap_included} | head -n 1 )
+  cmd="echo 'title  Arch Linux LVM\nlinux  /vmlinuz-linux\ninitrd  initramfs-linux.img\noptions root=UUID=${blkid_root} rw' > /boot/loader/entries/arch.conf"; cmd_success='0'; do_cmd_chroot
 }
 
 create_vagrant_user () {
   if $show_status; then echo "Status: Adding the vagrant user"; fi
-  cmd="/usr/bin/useradd -d /home/vagrant -G wheel -m' vagrant"; cmd_success='0'; do_cmd_chroot
-  cmd="echo 'vagrant:$vagrant_passwd' | chpasswd"; cmd_success='0'; do_cmd_chroot
+  cmd="/usr/bin/useradd -d /home/vagrant -G wheel -m vagrant"; cmd_success='0'; do_cmd_chroot
+  if $show_status; then echo "Status: Setting user vagrant password to $passwd_vagrant"; fi
+  cmd="echo 'vagrant:${passwd_vagrant}' | chpasswd"; cmd_success='0'; do_cmd_chroot
+  if $show_status; then echo "Status: Enableling sshd"; fi
   cmd="systemctl enable sshd": cmd_success='0'; do_cmd_chroot
+}
+
+set_root_passwd () {
+  if $show_status; then echo "Status: Setting user root password to $passwd_root"; fi
+  cmd="echo 'root:${passwd_root}' | chpasswd"; cmd_success='0'; do_cmd_chroot
+}
+
+umount_volumes () {
+  if $show_status; then echo "Status: Unmount the root"; fi
+  cmd="umount -R /mnt"; cmd_success='0'; do_cmd
 }
 
 crypt_passwd () {
@@ -223,6 +238,7 @@ quit () {
     message="Warning: ${message}"
   else
     message="Unknown: ${message}"
+    sleep 30
   fi
   echo "$message" && exit $exitcode
 }
@@ -261,4 +277,5 @@ elif $bootctl; then
   bootloader_bootctl
 fi
 create_vagrant_user
-echo "Done!!!!"
+set_root_passwd
+unmount_volumes
