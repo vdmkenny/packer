@@ -175,8 +175,8 @@ create_vagrant_user () {
   cmd="/usr/bin/useradd -d /home/vagrant -G wheel -m vagrant"; cmd_success='0'; do_cmd_chroot
   if $show_status; then echo "Status: Setting user vagrant password to $passwd_vagrant"; fi
   cmd="echo 'vagrant:${passwd_vagrant}' | chpasswd"; cmd_success='0'; do_cmd_chroot
-  if $show_status; then echo "Status: Enableling sshd"; fi
-  cmd="systemctl enable sshd": cmd_success='0'; do_cmd_chroot
+  if $show_status; then echo "Status: Configuring sudo for vagrant user"; fi
+  cmd="echo 'Defaults:vagrant !requiretty\n  vagrant ALL=(ALL) NOPASSWD: ALL\n' > /etc/sudoers.d/10_vagrant"; cmd_success='0'; do_cmd_chroot
 }
 
 set_root_passwd () {
@@ -186,7 +186,7 @@ set_root_passwd () {
 
 umount_volumes () {
   if $show_status; then echo "Status: Unmount the root"; fi
-  cmd="umount -R /mnt"; cmd_success='0'; do_cmd
+  cmd="/usr/bin/umount -R /mnt"; cmd_success='0'; do_cmd
 }
 
 crypt_passwd () {
@@ -278,4 +278,4 @@ elif $bootctl; then
 fi
 create_vagrant_user
 set_root_passwd
-unmount_volumes
+umount_volumes
