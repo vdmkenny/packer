@@ -33,7 +33,7 @@
   }],
 
   "post-processors": [{
-    "output": "build/centos-6.7-amd64-{{.Provider}}.box",
+    "output": "build/arch-amd64-{{.Provider}}.box",
     "type": "vagrant"
   }],
 
