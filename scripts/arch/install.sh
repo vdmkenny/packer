@@ -7,14 +7,16 @@ params () {
   show_cmd_output=false
   nuke=false
   devel=true
-  grub=false
-  bootctl=true
+  grub=true
+  bootctl=false
   hostname='test'
   passwd_vagrant='vagrant'
   passwd_root='root'
   if [[ -z $noop ]]; then noop=false; fi
   volgroupname="vg_${hostname}"
   lvs='root:3G var:4G swap:1G home:1G'
+  locale_used='en_US.UTF-8 UTF-8'
+  pacstrap_include='base base-devel'
 }
 
 
@@ -123,16 +125,13 @@ mount_lvm () {
 
 execute_pacstrap () {
  if $show_status; then echo "Status: Executing pacstrap"; fi
- if $devel; then
-   cmd="/usr/bin/pacstrap /mnt base base-devel"; cmd_success='0'; do_cmd
- else
-   cmd="/usr/bin/pacstrap /mnt base"; cmd_success='0'; do_cmd
- fi
+ cmd="/usr/bin/pacstrap /mnt ${pacstrap_include}"; cmd_success='0'; do_cmd
 }
 
 generate_fstab () {
   if $show_status; then echo "Status: Generate fstab"; fi
-  cmd="/usr/bin/genfstab /mnt >> /mnt/etc/fstab"; cmd_success='0'; do_cmd
+  cmd="/usr/bin/genfstab -U /mnt >> /mnt/etc/fstab"; cmd_success='0'; do_cmd
+  /usr/bin/genfstab -U /mnt >> /mnt/etc/fstab
 }
 
 chroot_config () {
@@ -140,9 +139,8 @@ chroot_config () {
   cmd="echo '$hostname' > /etc/hostname"; cmd_success='0'; do_cmd_chroot
   if $show_status; then echo "Status: Set timezone"; fi
   cmd="ln -s /usr/share/zoneinfo/europe/brussels /etc/localtime"; cmd_success='0'; do_cmd_chroot
-  locale_used=$( cat /mnt/etc/locale.gen | grep -v '#' )
-  echo $locale_used
   if $show_status; then echo "Status: Generate locale"; fi
+  cmd="echo '$locale_used' >> /etc/locale.gen": cmd_success='0'; do_cmd_chroot
   cmd="locale-gen"; cmd_success='0'; do_cmd_chroot
   cmd="echo 'LANG=$locale_used' > /etc/locale.conf"; cmd_success='0'; do_cmd_chroot
   if $show_status; then echo "Status: Building mkinitcpio"; fi
@@ -156,7 +154,7 @@ network_config () {
 
 bootloader_grub () {
   if $show_status; then echo "Status: Install grub";fi
-  cmd="echo 'Y' | pacman -S grub"; cmd_success='0'; do_cmd_chroot
+  cmd="pacman --noconfirm -S grub"; cmd_success='0'; do_cmd_chroot
   cmd="grub-install --target=i386-pc ${disk_to_use}1"; cmd_success='0'; do_cmd_chroot
   cmd="grub-mkconfig -o /boot/grub/grub.cfg"; cmd_success='0'; do_cmd_chroot
 }
@@ -165,9 +163,14 @@ bootloader_bootctl () {
   if $show_status; then echo "Status: Install bootctl";fi
   cmd="bootctl install"; cmd_success='0'; do_cmd_chroot
   if $show_status; then echo "Status: Setting up bootctl";fi
-  cmd="echo 'default arch\ntimeout 4\neditor 0\n' > /boot/loader/loader.conf"; cmd_success='0'; do_cmd_chroot
-  blkid_root=$( blkid -o value /dev/mapper/${volgroupname}-${swap_included} | head -n 1 )
-  cmd="echo 'title  Arch Linux LVM\nlinux  /vmlinuz-linux\ninitrd  initramfs-linux.img\noptions root=UUID=${blkid_root} rw' > /boot/loader/entries/arch.conf"; cmd_success='0'; do_cmd_chroot
+  cmd="echo 'default arch' > /boot/loader/loader.conf"; cmd_success='0'; do_cmd_chroot
+  cmd="echo 'timeout 4' >> /boot/loader/loader.conf"; cmd_success='0'; do_cmd_chroot
+  cmd="echo 'editor 0' >> /boot/loader/loader.conf"; cmd_success='0'; do_cmd_chroot
+  blkid_root=$( blkid -o value /dev/mapper/${volgroupname}-root | head -n 1 )
+  cmd="echo 'title  Arch Linux LVM' > /boot/loader/entries/arch.conf"; cmd_success='0'; do_cmd_chroot
+  cmd="echo 'linux  /vmlinuz-linux' >> /boot/loader/entries/arch.conf"; cmd_success='0'; do_cmd_chroot
+  cmd="echo 'initrd  initramfs-linux.img' >> /boot/loader/entries/arch.conf"; cmd_success='0'; do_cmd_chroot
+  cmd="echo 'options root=UUID=${blkid_root} rw' >> /boot/loader/entries/arch.conf"; cmd_success='0'; do_cmd_chroot
 }
 
 create_vagrant_user () {
@@ -187,6 +190,7 @@ set_root_passwd () {
 umount_volumes () {
   if $show_status; then echo "Status: Unmount the root"; fi
   cmd="/usr/bin/umount -R /mnt"; cmd_success='0'; do_cmd
+  cmd="swapoff /dev/mapper/${volgroupname}-${swap_included}"; cmd_success='0'; do_cmd
 }
 
 crypt_passwd () {
@@ -209,10 +213,10 @@ do_cmd () {
 do_cmd_chroot () {
   if $noop; then echo "Noop: $cmd"; else
     if $show_cmd_output; then
-      $cmd
+      echo "$cmd" | arch-chroot /mnt
       cmd_exit=$?; check_cmd
     else
-      echo "$cmd" | arch-chroot /mnt /bin/bash >> /dev/null
+      echo "$cmd" | arch-chroot /mnt >> /dev/null
       cmd_exit=$?; check_cmd
     fi
   fi
@@ -238,7 +242,7 @@ quit () {
     message="Warning: ${message}"
   else
     message="Unknown: ${message}"
-    sleep 30
+    sleep 300
   fi
   echo "$message" && exit $exitcode
 }
@@ -269,13 +273,14 @@ partition_lvm
 format_lvm
 mount_lvm
 execute_pacstrap
-generate_fstab
 chroot_config
 if $grub; then
   bootloader_grub
 elif $bootctl; then
   bootloader_bootctl
 fi
+generate_fstab
 create_vagrant_user
 set_root_passwd
-umount_volumes
+#umount_volumes
+sleep 3600

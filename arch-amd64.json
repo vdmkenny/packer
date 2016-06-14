@@ -12,10 +12,9 @@
     "boot_command": [
       "<tab> script=http://{{ .HTTPIP }}:{{ .HTTPPort }}/arch/pre-install.sh<enter>"
     ],
-    "boot_wait": "12s",
+    "boot_wait": "5s",
 
     "http_directory": "http",
-    "guest_additions_path": "VBoxGuestAdditions_{{ .Version }}.iso",
     "virtualbox_version_file": "/home/vagrant/.vbox_version",
 
     "ssh_username": "vagrant",
@@ -41,7 +40,7 @@
     "type": "shell",
     "execute_command": "echo 'vagrant' | {{ .Vars }} sudo -E -S bash '{{ .Path }}'",
     "scripts": [
-      "scripts/arch/install.sh"
+      "scripts/arch/install_short.sh"
     ]
   }]
 }
