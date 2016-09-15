@@ -19,12 +19,12 @@ sgdisk /dev/sda --new=2:0:0 --typecode=2:8e00
 # Mount the partitions
 /usr/bin/mount /dev/mapper/arch-root /mnt
 /usr/bin/mkdir /mnt/var /mnt/boot
-/usr/bin/mount /dev/mpper/arch-var /mnt/var
+/usr/bin/mount /dev/mapper/arch-var /mnt/var
 /usr/bin/mount /dev/sda1 /mnt/boot
 
 # Install the base system
 #/usr/bin/pacstrap /mnt base base-devel openssh syslinux virtualbox-guest-utils
-/usr/bin/pacstrap /mnt base base-devel openssh syslinux linux-lts virtualbox-guest-modules-arch virtualbox-guest-utils-nox
+/usr/bin/pacstrap /mnt base base-devel openssh syslinux linux-lts virtualbox-guest-modules-arch virtualbox-guest-utils-nox puppet
 
 # Generate the fstab
 /usr/bin/genfstab -U /mnt > /mnt/etc/fstab
@@ -89,6 +89,13 @@ ln -s /run/systemd/resolve/resolv.conf /mnt/etc/resolv.conf
 # Enable sshd
 sed -i 's/#UseDNS yes/UseDNS no/' /mnt/etc/ssh/sshd_config
 systemctl --root /mnt enable sshd
+
+# Setup puppet
+#config.vm.synced_folder "puppet/hiera/data", "/etc/hiera"
+#puppet.hiera_config_path = "puppet/hiera/hiera.yaml"
+#puppet.manifests_path = "puppet/manifests/"
+#puppet.module_path = "puppet/modules"
+mkdir -p /etc/puppet/{hiera,manifests,modules}
 
 umount -R /mnt
 exit 0

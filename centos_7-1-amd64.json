@@ -1,20 +1,18 @@
 {
   "builders": [{
     "type": "virtualbox-iso",
-    "headless": true,
+    "headless": false,
 
-    "guest_os_type": "ArchLinux_64",
-
-    "iso_url": "http://archlinux.mirror.kangaroot.net/iso/2016.09.03/archlinux-2016.09.03-dual.iso",
-    "iso_checksum": "271ef66a4cd7a3d845a95e4c4982affb",
+    "guest_os_type": "RedHat_64",
+    "iso_url": "http://centos.mirror.nucleus.be/7.1.1503/isos/x86_64/CentOS-7-x86_64-Minimal-1503-01.iso",
+    "iso_checksum": "d07ab3e615c66a8b2e9a50f4852e6a77",
     "iso_checksum_type": "md5",
 
-    "boot_command": [
-      "<tab> script=http://{{ .HTTPIP }}:{{ .HTTPPort }}/arch/pre-install.sh<enter>"
-    ],
-    "boot_wait": "5s",
+    "boot_command": ["<tab> text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/centos-7.1-amd64/ks.cfg<enter><wait>"],
+    "boot_wait": "12s",
 
     "http_directory": "http",
+    "guest_additions_path": "VBoxGuestAdditions_{{ .Version }}.iso",
     "virtualbox_version_file": "/home/vagrant/.vbox_version",
 
     "ssh_username": "vagrant",
@@ -32,7 +30,7 @@
   }],
 
   "post-processors": [{
-    "output": "build/arch-amd64-{{.Provider}}.box",
+    "output": "build/centos-7.1-amd64-{{.Provider}}.box",
     "type": "vagrant"
   }],
 
@@ -40,7 +38,10 @@
     "type": "shell",
     "execute_command": "echo 'vagrant' | {{ .Vars }} sudo -E -S bash '{{ .Path }}'",
     "scripts": [
-      "scripts/arch/install_short.sh"
+      "scripts/vagrant.sh",
+      "scripts/centos/centos7-packages.sh",
+      "scripts/vboxguest.sh",
+      "scripts/centos/puppet.sh"
     ]
   }]
 }

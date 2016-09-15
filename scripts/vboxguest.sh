@@ -6,7 +6,7 @@ VERSION=$(cat /home/vagrant/.vbox_version)
 # Line for if the iso is not found
 # Could be in a different location
 echo "ISO's found in /"
-find / -name '*.iso'
+find / -path /proc -prune -o -name '*.iso'
 
 mount -o loop /home/vagrant/VBoxGuestAdditions_$VERSION.iso /tmp/virtualbox
 sh /tmp/virtualbox/VBoxLinuxAdditions.run
