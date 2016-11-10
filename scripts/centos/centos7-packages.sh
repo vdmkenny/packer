@@ -1,4 +1,10 @@
 #!/bin/bash
 
+# Reference:
+# https://wiki.centos.org/HowTos/Virtualization/VirtualBox/CentOSguest
+
 yum install epel-release -y
-yum install bzip2 dkms make gcc kernel-devel kernel-headers policycoreutils-python -y
+yum clean all
+yum groupinstall "Development Tools" -y
+yum install kernel-devel -y
+reboot
