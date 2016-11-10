@@ -30,7 +30,7 @@ sgdisk /dev/sda --new=2:0:0 --typecode=2:8e00
 /usr/bin/genfstab -U /mnt > /mnt/etc/fstab
 
 # Set the locale
-/usr/bin/echo 'en_US.UTF-8 UTF-8' > /etc/locale.gen
+/usr/bin/echo 'en_US.UTF-8 UTF-8' > /mnt/etc/locale.gen
 /usr/bin/echo '/usr/bin/locale-gen' | /usr/bin/arch-chroot /mnt /bin/bash
 
 # Setup time
