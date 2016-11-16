@@ -34,7 +34,7 @@ sgdisk /dev/sda --new=2:0:0 --typecode=2:8e00
 /usr/bin/echo '/usr/bin/locale-gen' | /usr/bin/arch-chroot /mnt /bin/bash
 
 # Setup time
-/usr/bin/ln -s /mnt/usr/share/zoneinfo/Europe/Brussels /mnt/etc/localtime
+/usr/bin/ln -s /usr/share/zoneinfo/Europe/Brussels /mnt/etc/localtime
 /usr/bin/echo 'hwclock --systohc --utc' | /usr/bin/arch-chroot /mnt /bin/bash
 
 # Setup hostname
