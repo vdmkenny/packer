@@ -1,0 +1,44 @@
+{
+  "builders": [{
+    "type": "qemu",
+    "headless": false,
+
+    "iso_url": "https://archlinux.cu.be/iso/2016.10.01/archlinux-2016.10.01-dual.iso",
+    "iso_checksum": "97537db63e61d20a5cb71d29145b2937",
+    "iso_checksum_type": "md5",
+
+    "net_device": "virtio-net",
+    "disk_interface": "virtio",
+
+    "boot_command": [
+      "<tab> script=http://{{ .HTTPIP }}:{{ .HTTPPort }}/arch/pre-install.sh<enter>"
+    ],
+    "boot_wait": "5s",
+
+    "http_directory": "http",
+
+    "ssh_username": "vagrant",
+    "ssh_password": "vagrant",
+    "ssh_port": 22,
+    "ssh_wait_timeout": "3600s",
+    "ssh_pty" : "true",
+
+    "disk_size": 10240,
+    "format": "qcow2",
+    "accelerator": "kvm",
+    "shutdown_command": "echo 'vagrant' | sudo -S shutdown -P now"
+  }],
+
+  "post-processors": [{
+    "output": "build/arch-amd64-{{.Provider}}.box",
+    "type": "vagrant"
+  }],
+
+  "provisioners": [{
+    "type": "shell",
+    "execute_command": "echo 'vagrant' | {{ .Vars }} sudo -E -S bash '{{ .Path }}'",
+    "scripts": [
+      "scripts/arch/install_short-libvirt.sh"
+    ]
+  }]
+}

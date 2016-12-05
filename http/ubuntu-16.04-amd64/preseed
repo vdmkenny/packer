@@ -1,0 +1,87 @@
+d-i debian-installer/language string en
+d-i debian-installer/locale string en_US.UTF-8
+d-i localechooser/preferred-locale string en_US.UTF-8
+d-i localechooser/supported-locales en_US.UTF-8
+d-i console-setup/ask_detect boolean false
+d-i keyboard-configuration/layout select USA
+d-i keyboard-configuration/variant select USA
+d-i keyboard-configuration/modelcode string pc105
+
+d-i passwd/root-login boolean false
+d-i passwd/user-fullname string ubuntu
+d-i passwd/username string ubuntu
+d-i passwd/user-password-crypted password $6$Rbl9k2XVPPUuIgkK$aesJb9DRVHt2ijiqAcQWpkHsfXEfnKmeiTbbdJsMWaakSDeclcKKB1CRwUVWWIG4qEsqmketIG6pkyPUisXsD/
+
+# d-i netcfg/choose_interface select auto
+d-i netcfg/choose_interface select en160
+
+# IPv4 example
+#d-i netcfg/get_ipaddress string 192.168.1.42
+#d-i netcfg/get_netmask string 255.255.255.0
+#d-i netcfg/get_gateway string 192.168.1.1
+#d-i netcfg/get_nameservers string 192.168.1.1
+#d-i netcfg/confirm_static boolean true
+
+# IPv6 example
+#d-i netcfg/get_ipaddress string fc00::2
+#d-i netcfg/get_netmask string ffff:ffff:ffff:ffff::
+#d-i netcfg/get_gateway string fc00::1
+#d-i netcfg/get_nameservers string fc00::1
+#d-i netcfg/confirm_static boolean true
+
+d-i netcfg/get_hostname string unassigned-hostname
+d-i netcfg/get_domain string unassigned-domain
+d-i netcfg/hostname string foobar
+
+d-i netcfg/wireless_wep string
+
+d-i mirror/country string manual
+d-i mirror/http/hostname string archive.ubuntu.com
+d-i mirror/http/directory string /ubuntu
+d-i mirror/http/proxy string
+
+d-i user-setup/encrypt-home boolean false
+
+d-i clock-setup/utc boolean true
+
+d-i debian-installer/country string BE
+d-i time/zone string Europe/Brussels
+
+d-i clock-setup/ntp boolean true
+
+d-i partman-auto/method string regular
+d-i partman-lvm/device_remove_lvm boolean true
+d-i partman-md/device_remove_md boolean true
+d-i partman-lvm/confirm boolean true
+d-i partman-lvm/confirm_nooverwrite boolean true
+
+d-i partman-auto/expert_recipe string                         \
+      root ::                                                 \
+              500 10000 1000000000 ext4                       \
+                      method{ format } format{ }              \
+                      $primary{ } $bootable{ }                \
+                      use_filesystem{ } filesystem{ ext4 }    \
+                      mountpoint{ / }                         \
+              .                                               \
+              64 5120 5120 linux-swap                         \
+                      $primary{ }                             \
+                      method{ swap } format{ }                \
+              .
+
+d-i partman/default_filesystem string ext4
+d-i partman-md/confirm boolean true
+d-i partman-partitioning/confirm_write_new_label boolean true
+d-i partman/choose_partition select finish
+d-i partman/confirm boolean true
+d-i partman/confirm_nooverwrite boolean true
+
+tasksel tasksel/first multiselect standard ubuntu-server
+
+d-i pkgsel/include string openssh-server
+d-i pkgsel/install-language-support boolean false
+d-i pkgsel/update-policy select none
+popularity-contest popularity-contest/participate boolean false
+d-i grub-installer/only_debian boolean true
+d-i grub-installer/with_other_os boolean true
+d-i finish-install/reboot_in_progress note
+d-i cdrom-detect/eject boolean true
