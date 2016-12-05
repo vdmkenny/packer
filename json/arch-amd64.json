@@ -5,8 +5,8 @@
 
     "guest_os_type": "ArchLinux_64",
 
-    "iso_url": "https://archlinux.cu.be/iso/2016.10.01/archlinux-2016.10.01-dual.iso",
-    "iso_checksum": "97537db63e61d20a5cb71d29145b2937",
+    "iso_url": "https://archlinux.cu.be/iso/2016.12.01/archlinux-2016.12.01-dual.iso",
+    "iso_checksum": "3701e0d4009009fa965e546c6c0c643f",
     "iso_checksum_type": "md5",
 
     "boot_command": [
