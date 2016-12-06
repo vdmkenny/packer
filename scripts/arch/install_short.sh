@@ -118,12 +118,14 @@ cd package-query
 makepkg --noconfirm --noprogressbar -s &>/dev/null
 sudo pacman -U package-query-*.pkg.tar.xz --noconfirm
 cd ..
+rm package-query -rf
 
 git clone https://aur.archlinux.org/yaourt.git
 cd yaourt
 makepkg --noconfirm --noprogressbar -s &>/dev/null
 sudo pacman -U yaourt-*.pkg.tar.xz --noconfirm
 cd ..
+rm yaourt -rf
 EOFyaourt
 
 # Add the permissions
@@ -131,6 +133,9 @@ chmod 0755 $get_yaourt
 
 # Execute as non-root user
 /usr/bin/echo "su - vagrant $get_yaourt" | arch-chroot /mnt /bin/bash
+
+# Clean up the script
+rm $get_yaourt_setup
 
 umount -R /mnt
 exit 0
